@@ -21,7 +21,7 @@ def input_students(availabile_cohorts)
   students = []
 
   puts "student name: "
-  name = gets.chomp
+  name = gets.gsub("\n","")
   
   while !name.empty? do
     cohort = "undefined"
@@ -74,7 +74,8 @@ def print(students)
 end
 
 def print_footer(names)
-  string = "Overall, we have #{names.count} great students"
+  names.count < 2 ? student_plural = "student" : student_plural = "students"
+  string = "Overall, we have #{names.count} great #{student_plural}"
   puts ""
   puts string.center(50,"*")
 end
@@ -82,8 +83,8 @@ end
 # temporarily using hardcoded list to test code in Examples -
 # will switch back to input_students later
 
-# students = input_students(cohorts)
-students = [
+students = input_students(cohorts)
+students_old = [
   {name: "Dr. Hannibal Lecter", cohort: :november},
   {name: "Darth Vader", cohort: :may},
   {name: "Nurse Ratched", cohort: :november},
@@ -98,6 +99,8 @@ students = [
 ]
 
 
-print_header
-print(students)
-print_footer(students)
+if students.length > 0
+  print_header
+  print(students)
+  print_footer(students)
+end
