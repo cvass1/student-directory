@@ -1,30 +1,43 @@
 
-students_old = [
-  {name: "Dr. Hannibal Lecter", cohort: :november},
-  {name: "Darth Vader", cohort: :november},
-  {name: "Nurse Ratched", cohort: :november},
-  {name: "Michael Corleone", cohort: :november},
-  {name: "Alex DeLarge", cohort: :november},
-  {name: "The Wicked Witch of the West", cohort: :november},
-  {name: "Terminator", cohort: :november},
-  {name: "Freddy Krueger", cohort: :november},
-  {name: "The Joker", cohort: :november},
-  {name: "Joffrey Baratheon", cohort: :november},
-  {name: "Norman Bates", cohort: :november}
-]
+cohorts = {
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
+}
 
-def input_students
+def input_students(availabile_cohorts)
   puts "Please enter the names of the students"
-  puts "To finish, just hit return twice"
+  puts "(To finish, just hit return twice)"
 
   students = []
 
+  puts "student name: "
   name = gets.chomp
   
   while !name.empty? do
-    students << {name: name, cohort: :november}
+    cohort = "undefined"
+    while availabile_cohorts[cohort.to_sym] == nil do
+      puts "Enter cohort month eg november:"
+      cohort = gets.chomp
+      cohort == "" ? cohort = :november : cohort
+    end
+
+    students << {name: name,
+      cohort: cohort,
+      hobby: :gym,
+      country_of_birth: :UK,
+      height: 1.5}
     puts "Now we have #{students.count} students"
-    
+    puts "student name:"
     name = gets.chomp
   end
 
@@ -38,16 +51,53 @@ def print_header
 end
 
 def print(students)
-  students.each do |student|
-    puts "#{student[:name]} (#{student[:cohort]} cohort)"
-  end
+  # print list of all students
+  puts "Students by index number: \n "
+  students.each_with_index { |student, index|
+    puts "#{index+1}.#{student[:name]} (#{student[:cohort]} cohort)"
+  }
+
+  # sort students by cohort and print
+  cohorts_filled = {}
+  students.each { |student|
+    cohorts_filled[student[:cohort]] == nil ? cohorts_filled[student[:cohort]] = [student[:name]] : cohorts_filled[student[:cohort]].push(student[:name])
+  }
+
+  puts " \nStudents by cohort: \n "
+  cohorts_filled.each { |key, value|
+    puts "The #{key.to_s.capitalize} cohort:"
+    value.each { |name|
+      puts name
+    }
+    puts ""
+  }
 end
 
 def print_footer(names)
-  puts "Overall, we have #{names.count} great students"
+  string = "Overall, we have #{names.count} great students"
+  puts ""
+  puts string.center(50,"*")
 end
 
-students = input_students
+# temporarily using hardcoded list to test code in Examples -
+# will switch back to input_students later
+
+# students = input_students(cohorts)
+students = [
+  {name: "Dr. Hannibal Lecter", cohort: :november},
+  {name: "Darth Vader", cohort: :may},
+  {name: "Nurse Ratched", cohort: :november},
+  {name: "Michael Corleone", cohort: :june},
+  {name: "Alex DeLarge", cohort: :november},
+  {name: "The Wicked Witch of the West", cohort: :november},
+  {name: "Terminator", cohort: :june},
+  {name: "Freddy Krueger", cohort: :november},
+  {name: "The Joker", cohort: :november},
+  {name: "Joffrey Baratheon", cohort: :november},
+  {name: "Norman Bates", cohort: :may}
+]
+
+
 print_header
 print(students)
 print_footer(students)
