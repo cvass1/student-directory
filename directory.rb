@@ -1,6 +1,39 @@
 
 @students = []
 
+def print_menu
+  puts "\nMAIN MENU"
+  puts "1. Input the students"
+  puts "2. Show the students"
+  puts "3. Save the list to students.csv"
+  puts "4. Load the list from students.csv"
+  puts "9. Exit\n "
+end
+
+def interactive_menu
+  loop do
+  print_menu
+  process(STDIN.gets.chomp)
+  end
+end
+
+def process(selection)
+  case selection
+    when "1"
+      input_students
+    when "2"
+      show_students
+    when "3"
+      save_students
+    when "4"
+      load_students
+    when "9"
+      exit
+    else
+      puts "I don't know what you mean, try again"
+  end
+end
+
 def input_students
   availabile_cohorts = {
     january: 1,
@@ -22,13 +55,13 @@ def input_students
 
 
   puts "student name: "
-  name = gets.gsub("\n","")
+  name = STDIN.gets.chomp
   
   while !name.empty? do
     cohort = "undefined"
     while availabile_cohorts[cohort.to_sym] == nil do
       puts "Enter cohort month eg november:"
-      cohort = gets.chomp
+      cohort = STDIN.gets.chomp
       cohort == "" ? cohort = :november : cohort
     end
 
@@ -39,17 +72,21 @@ def input_students
       height: 1.5}
     puts "Now we have #{@students.count} students"
     puts "student name:"
-    name = gets.chomp
+    name = STDIN.gets.chomp
   end
 
 end
 
+def show_students
+  print_header
+  print_students_list
+  print_footer
+end
 
 def print_header
   puts "The students of Villains Academy"
   puts "-------------"
 end
-
 
 def print_students_list
   # print list of all students
@@ -74,47 +111,11 @@ def print_students_list
   }
 end
 
-
 def print_footer
   @students.count < 2 ? student_plural = "student" : student_plural = "students"
   string = "Overall, we have #{@students.count} great #{student_plural}"
   puts string.center(50,"*")
   puts ""
-end
-
-
-def print_menu
-  puts "\nMAIN MENU"
-  puts "1. Input the students"
-  puts "2. Show the students"
-  puts "3. Save the list to students.csv"
-  puts "4. Load the list from students.csv"
-  puts "9. Exit\n "
-end
-
-
-def show_students
-  print_header
-  print_students_list
-  print_footer
-end
-
-
-def process(selection)
-  case selection
-    when "1"
-      input_students
-    when "2"
-      show_students
-    when "3"
-      save_students
-    when "4"
-      load_students
-    when "9"
-      exit
-    else
-      puts "I don't know what you mean, try again"
-  end
 end
 
 def save_students
@@ -129,8 +130,8 @@ def save_students
   file.close
 end
 
-def load_students
-  file = File.open("students.csv", "r")
+def load_students(filename = "students.csv")
+  file = File.open(filename, "r")
   file.readlines.each do |line|
   name, cohort = line.chomp.split(',')
     @students << {name: name, cohort: cohort.to_sym}
@@ -138,14 +139,18 @@ def load_students
   file.close
 end
 
-
-def interactive_menu
-  loop do
-  print_menu
-  process(gets.chomp)
+def try_load_students
+  filename = ARGV.first # first argument from the command line
+  return if filename.nil? # get out of the method if it isn't given
+  if File.exist?(filename) # if it exists
+    load_students(filename)
+     puts "Loaded #{@students.count} from #{filename}"
+  else # if it doesn't exist
+    puts "Sorry, #{filename} doesn't exist."
+    exit # quit the program
   end
-end 
+end
+ 
 
-
-
+try_load_students
 interactive_menu
