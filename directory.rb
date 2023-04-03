@@ -1,3 +1,4 @@
+require 'csv'
 
 @students = []
 
@@ -5,8 +6,9 @@ def print_menu
   puts "\nMAIN MENU"
   puts "1. Input the students"
   puts "2. Show the students"
-  puts "3. Save the list to students.csv"
-  puts "4. Load the list from students.csv"
+  puts "3. Save the list to a file"
+  puts "4. Load the list from a file"
+  puts "5. Print Source Code"
   puts "9. Exit\n "
 end
 
@@ -21,12 +23,19 @@ def process(selection)
   case selection
     when "1"
       input_students
+      puts "Student input completed"
     when "2"
       show_students
     when "3"
-      save_students
+      puts "Please enter filename (eg students.csv)"
+      save_students(STDIN.gets.chomp)
+      puts "student list saved"
     when "4"
-      load_students
+      puts "Please enter filename (eg students.csv)"
+      load_students(STDIN.gets.chomp)
+      puts "loaded additional students from file, new student total: #{@students.count}"
+    when "5"
+      print_source_code
     when "9"
       exit
     else
@@ -35,46 +44,20 @@ def process(selection)
 end
 
 def input_students
-  availabile_cohorts = {
-    january: 1,
-    february: 2,
-    march: 3,
-    april: 4,
-    may: 5,
-    june: 6,
-    july: 7,
-    august: 8,
-    september: 9,
-    october: 10,
-    november: 11,
-    december: 12,
-  }
-
   puts "Please enter the names of the students"
   puts "(To finish, just hit return twice)"
-
-
-  puts "student name: "
   name = STDIN.gets.chomp
   
   while !name.empty? do
-    cohort = "undefined"
-    while availabile_cohorts[cohort.to_sym] == nil do
-      puts "Enter cohort month eg november:"
-      cohort = STDIN.gets.chomp
-      cohort == "" ? cohort = :november : cohort
-    end
-
-    @students << {name: name,
-      cohort: cohort,
-      hobby: :gym,
-      country_of_birth: :UK,
-      height: 1.5}
+    cohort = "november"
+    add_student(name, cohort)
     puts "Now we have #{@students.count} students"
-    puts "student name:"
     name = STDIN.gets.chomp
   end
+end
 
+def add_student(name, cohort)
+  @students << {name: name, cohort: cohort.to_sym}
 end
 
 def show_students
@@ -118,30 +101,28 @@ def print_footer
   puts ""
 end
 
-def save_students
-  # open the file for writing
-  file = File.open("students.csv", "w")
-  # iterate over the array of students
-  @students.each do |student|
-    student_data = [student[:name], student[:cohort]]
-    csv_line = student_data.join(",")
-    file.puts csv_line
+def save_students(filename)
+  File.open(filename, "w") do |file|
+    @students.each do |student|
+      student_data = [student[:name], student[:cohort]]
+      csv_line = student_data.join(",")
+      file.puts csv_line
+    end
   end
-  file.close
 end
 
-def load_students(filename = "students.csv")
-  file = File.open(filename, "r")
-  file.readlines.each do |line|
-  name, cohort = line.chomp.split(',')
-    @students << {name: name, cohort: cohort.to_sym}
+def load_students(filename)
+  CSV.foreach(filename, "r") do |row|
+      name, cohort = row[0], row[1]
+      add_student(name, cohort)
   end
-  file.close
 end
 
 def try_load_students
   filename = ARGV.first # first argument from the command line
-  return if filename.nil? # get out of the method if it isn't given
+  if filename.nil?
+    filename = "students.csv"
+  end
   if File.exist?(filename) # if it exists
     load_students(filename)
      puts "Loaded #{@students.count} from #{filename}"
@@ -151,6 +132,13 @@ def try_load_students
   end
 end
  
+def print_source_code
+  puts "Source code: \n"
+  puts File.read(__FILE__)
+end
 
 try_load_students
 interactive_menu
+
+
+
